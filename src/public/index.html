@@ -5,22 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="style.css" />
     <title>Requisição de livros</title>
-    </head>
+  </head>
   <body>
-    <form id="form">
-      <h1>Requisição de livros</h1>
-      <div>
-        <label for="title">Número de identificação do livro</label>
-        <input
-          type="number"
-          name="id"
-          id="id"
-          placeholder="Identificação do livro"
-        />
-        <button>Requisitar</button>
-      </div>
-    </form>
-      <div class="output"></div>
+    <main>
+      <form id="form">
+        <h1>Adicionar livro na lista</h1>
+        <div class="form-control">
+          <input
+            type="text"
+            name="name"
+            id="name"
+            placeholder="Titulo do livro"
+          />
+          <button>Adicionar</button>
+        </div>
+      </form>
+      <h1>Livros existentes adicionados</h1>
+      <div class="all-books"></div>
+    </main>
+    <div class="submit-message"></div>
     <script src="index.js" defer></script>
   </body>
 </html>

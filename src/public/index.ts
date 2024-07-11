@@ -1,24 +1,83 @@
-const form = document.querySelector("#form")!;
-const output = document.querySelector<HTMLDivElement>(".output")!;
-
+const form = document.querySelector("form")!;
 interface Book {
   id: number;
   name: string;
   created_at: string;
 }
 
-form.addEventListener("submit", async (event) => {
+const handleSubmit = async (event: Event) => {
   event.preventDefault();
-  const bookId = document.querySelector<HTMLInputElement>("#id")!.value;
 
-  try {
-    const response = await fetch(`/books/${bookId}`, { method: "GET" });
-    const bookData: Book[] = await response.json();
-    output.textContent = JSON.stringify(bookData, null, 2);
-    console.log(bookData[0].name);
-  } catch (error) {
-    console.error(error);
+  const name = document
+    .querySelector<HTMLInputElement>("#name")!
+    .value.split(" ")
+    .map((word) => word[0].toUpperCase() + word.slice(1))
+    .join(" ");
+
+  if (await bookAlreadyExist(name)) {
+    popSubmitMessage("Livro já existente!");
+    return;
   }
-});
 
-const form2 = document.querySelector("#form2")!;
+  fetch("books/", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      name,
+    }),
+  }).then(createBooksELements);
+  
+  popSubmitMessage("Adicionado com sucesso!");
+};
+
+const fetchAllBooks = async (): Promise<Book[]> => {
+  const response = await fetch("books/", { method: "GET" });
+
+  return response.json() as Promise<Book[]>;
+};
+
+const bookAlreadyExist = async (verifyBook: string) => {
+  const books = await fetchAllBooks();
+
+  for (let i = 0; i < books.length; i++) {
+    const book = books[i];
+
+    if (book.name === verifyBook) return true;
+  }
+  return false;
+};
+
+const createBooksELements = async () => {
+  const allBooksElement = document.querySelector<HTMLDivElement>(".all-books")!;
+  const books = await fetchAllBooks();
+
+  allBooksElement.innerHTML = books
+    .map(
+      (book) => `
+        <div class="book">
+          <p>${book.name}</p>
+          <p>Adicionado em: ${formatDate(book.created_at)}</p>
+        </div>
+      `
+    )
+    .join("");
+};
+
+const popSubmitMessage = (message: string) => {
+  const submitMessage =
+    document.querySelector<HTMLDivElement>(".submit-message")!;
+  submitMessage.innerText = message;
+};
+
+const formatDate = (date: string) => {
+  const yyyy = date.split("-")[0];
+  const mm = date.split("-")[1];
+  const dd = date.split("-")[2].substring(0, 2);
+  return `  ${dd}/${mm}/${yyyy}`;
+};
+
+form.addEventListener("submit", handleSubmit);
+
+window.onload = createBooksELements;
